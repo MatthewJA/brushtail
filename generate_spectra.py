@@ -2,16 +2,9 @@ import numpy
 from tqdm import tqdm as tqdm
 import scipy.ndimage
 
-import sys
-sys.path.insert(1, '/home/alger/repos/RM-tools/')
-from RMutils import util_RM
 
-
-def generate_spectra(freqs, n_spectra=100, min_phi=-1000, max_phi=1000, phi_sampling=300, max_noise=0.333):
+def generate_spectra(freqs, util_RM, n_spectra=100, min_phi=-1000, max_phi=1000, phi_sampling=300, max_noise=0.333, phi_padding=0):
     """Generate simulated Faraday spectra."""
-    # Load data.
-    freqs = numpy.load('/home/alger/possum/alger/jack_freqs.npy')
-
     # Compute the RMSFs.
     lsq = (3e8 / freqs) ** 2
     phis = numpy.linspace(min_phi, max_phi, phi_sampling)
@@ -19,7 +12,8 @@ def generate_spectra(freqs, n_spectra=100, min_phi=-1000, max_phi=1000, phi_samp
     # Generate some Faraday spectra.
 
     # True parameters: peak positions, amplitudes, and phases.
-    depths = numpy.random.uniform(min_phi, max_phi, size=(n_spectra, 2))
+    depths = numpy.random.uniform(
+        min_phi + phi_padding, max_phi - phi_padding, size=(n_spectra, 2))
     amps = numpy.random.uniform(0, 1, size=(n_spectra, 2))
     amps[:, 0] = 1  # Normalise first amplitude to 1.
     # Set simple sources to have 0 for the second peak.
